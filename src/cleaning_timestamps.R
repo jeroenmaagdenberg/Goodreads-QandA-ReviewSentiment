@@ -4,8 +4,6 @@ library(dplyr)
 library(gsubfn)
 library(stringr)
 
-setwd("~/Downloads")
-test <- fread("goodreads_reviews.csv", nrows = 100)
 setwd('/Users/jeroenm/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 
 df <- fread("dat/2864_goodreads_com_book_full.csv")
@@ -26,10 +24,9 @@ subset_df$Scrapting_Date <- as.Date(subset_df$Scrapting_Date)
 subset_df$exact_question_timestamp <- subset_df$Scrapting_Date - as.numeric(gsub("\\D", "", subset_df$Date_of_Question))
 #### or should i put this in the original date_of_question column? 
 
-
-################### 
+#####
 # subset to rows that contain "year" in Date_of_Question
-subset2_df <- df[grep("year", df$Date_of_Question)]
+#subset2_df <- df[grep("year", df$Date_of_Question)] #not used
 
 web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")
 web_archive <- web_archive %>%
@@ -49,3 +46,8 @@ web_archive$Question_Timestamp <- sub("one year ago", "365 days ago", web_archiv
 # extract number of days from Date_of_Question and subtract from scrapting_date for exact timestamp
 web_archive$exact_question_timestamp <- web_archive$Url_Timestamp - as.numeric(gsub("\\D", "", web_archive$Question_Timestamp))
 #### or should i put this in the original date_of_question column? 
+
+#####
+# --- MERGING --- #
+merged <- left_join(web_archive, subset_df, by = "Book_Id")
+View(merged)
