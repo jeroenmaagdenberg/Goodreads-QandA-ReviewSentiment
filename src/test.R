@@ -1,0 +1,41 @@
+library(tidyverse)
+library(data.table)
+library(dplyr)
+library(gsubfn)
+library(stringr)
+
+setwd("~/Downloads")
+test <- fread("goodreads_reviews.csv", nrows = 100)
+setwd('/Users/jeroenm/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
+
+df <- fread("dat/2864_goodreads_com_book_full.csv")
+
+df <- df %>%
+  filter(Date_of_Question != "")
+
+# subset to rows that contain "day" or "month" in Date_of_Question
+subset_df <- df[grep("day|month", df$Date_of_Question)]
+
+# replace "months" with equivalent number of days
+subset_df$Date_of_Question <- gsubfn("(\\d+) months ago", ~paste0(as.numeric(x) * 30, " days ago"), subset_df$Date_of_Question)
+
+# convert scraping_date to Date object
+subset_df$Scrapting_Date <- as.Date(subset_df$Scrapting_Date)
+
+# extract number of days from Date_of_Question and subtract from scrapting_date for exact timestamp
+
+subset_df$exact_question_timestamp <- subset_df$Scrapting_Date - as.numeric(gsub("\\D", "", subset_df$Date_of_Question))
+#### or should i put this in the original date_of_question column? 
+
+
+################### 
+# subset to rows that contain "year" in Date_of_Question
+subset2_df <- df[grep("year", df$Date_of_Question)]
+
+web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")
+web_archive <- web_archive %>%
+  mutate(Url_Timestamp = as.character(Url_Timestamp)) %>%
+  mutate(Url_Timestamp = str_sub(Url_Timestamp, start = 1, end = 8)) %>%
+  mutate(Url_Timestamp = strptime(Url_Timestamp, format = "%Y%m%d")) %>%
+  mutate(Url_Timestamp = format(Url_Timestamp, "Y%-%m-%d"))
+
