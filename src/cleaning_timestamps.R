@@ -23,7 +23,6 @@ subset_df$Date_of_Question <- gsubfn("(\\d+) months ago", ~paste0(as.numeric(x) 
 subset_df$Scrapting_Date <- as.Date(subset_df$Scrapting_Date)
 
 # extract number of days from Date_of_Question and subtract from scrapting_date for exact timestamp
-
 subset_df$exact_question_timestamp <- subset_df$Scrapting_Date - as.numeric(gsub("\\D", "", subset_df$Date_of_Question))
 #### or should i put this in the original date_of_question column? 
 
@@ -37,5 +36,16 @@ web_archive <- web_archive %>%
   mutate(Url_Timestamp = as.character(Url_Timestamp)) %>%
   mutate(Url_Timestamp = str_sub(Url_Timestamp, start = 1, end = 8)) %>%
   mutate(Url_Timestamp = strptime(Url_Timestamp, format = "%Y%m%d")) %>%
-  mutate(Url_Timestamp = format(Url_Timestamp, "Y%-%m-%d"))
+  mutate(Url_Timestamp = format(Url_Timestamp, "%Y-%m-%d"))
+web_archive$Url_Timestamp <- as.Date(web_archive$Url_Timestamp)
 
+
+# replace "months" with equivalent number of days
+web_archive$Question_Timestamp <- gsubfn("(\\d+) months ago", ~paste0(as.numeric(x) * 30, " days ago"), web_archive$Question_Timestamp)
+
+# replace "years" with equivalent number of days
+web_archive$Question_Timestamp <- sub("one year ago", "365 days ago", web_archive$Question_Timestamp)
+
+# extract number of days from Date_of_Question and subtract from scrapting_date for exact timestamp
+web_archive$exact_question_timestamp <- web_archive$Url_Timestamp - as.numeric(gsub("\\D", "", web_archive$Question_Timestamp))
+#### or should i put this in the original date_of_question column? 
