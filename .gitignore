@@ -49,6 +49,5 @@ po/*~
 rsconnect/
 
 # Other
-.gitignore
-*.DS_Store
+**.DS_Store
 *.csv
