@@ -1,6 +1,8 @@
+library(data.table)
 library(tidytext)
 library(dplyr)
 library(vader)
+library(stringr)
 library(tokenizers)
 library(readr)
 
@@ -10,19 +12,36 @@ setwd("..")
 setwd("~/Downloads")
 
 # Load the data frame of reviews
-reviews <- fread("goodreads_reviews.csv", nrows = 10000)
+reviews <- fread("goodreads_reviews.csv")
 reviews <- reviews %>%
   filter(review_text_incomplete != "")
 reviews$review_text_incomplete <- tolower(as.character(reviews$review_text_incomplete))
 
-get_sentiments("afinn")
-
-
+# clean reviews
+reviews <- reviews %>%
+  mutate(
+    # remove links
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "https\\S*"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "http\\S*"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "t.co*"),
+    # remove annoying html stuff
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "amp"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "&S*"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "&#x27;|&quot;|&#x2F;"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "<a(.*?)>"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "&gt;|&lt;|&amp;"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "&#[:digit:]+;"),
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "<[^>]*>"),
+    # remove numbers
+    review_text_incomplete = str_remove_all(reviews$review_text_incomplete, "[:digit:]"),
+    # remove excess whitespace
+    review_text_incomplete = str_squish(review_text_incomplete),
+    review_text_incomplete = str_trim(review_text_incomplete))
 
 
 # Tokenize the reviews using the unnest_tokens() function
 reviews_tokens <- reviews %>%
-  unnest_tokens(bigram, format = "text", review_text_incomplete)
+  unnest_tokens(word, format = "text", review_text_incomplete)
 
 # --- Remove Stopwords --- #
 tidy_reviews <-
@@ -52,9 +71,8 @@ reviews_sentiment_afinn <-
     )
   )
 
-
-check <- full_join(reviews, reviews_sentiment_afinn, by = "review_id") %>%
-  filter(is.na(sentiment_afinn))
+### check for removed reviews due to the cleaning process
+# check <- full_join(reviews, reviews_sentiment_afinn, by = "review_id") %>% filter(is.na(sentiment_afinn))
 
 
 ### accuracy 
