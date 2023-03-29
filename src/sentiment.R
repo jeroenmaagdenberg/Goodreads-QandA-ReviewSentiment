@@ -6,6 +6,8 @@ library(stringr)
 library(tokenizers)
 library(readr)
 
+setwd("~/Documents/GitHub/Goodreads-QandA-ReviewSentiment")
+reviews <- fread("dat/goodreads_reviews_clean.csv")
 
 # Tokenize the reviews using the unnest_tokens() function
 reviews_tokens <- reviews %>%
