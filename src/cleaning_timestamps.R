@@ -6,7 +6,7 @@ library(dplyr)
 library(gsubfn)
 library(stringr)
 
-setwd('/Users/jeroenm/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
+setwd('~/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 
 #####
 ### convert months to days
