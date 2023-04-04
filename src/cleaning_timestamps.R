@@ -48,8 +48,13 @@ web_archive$Question_Timestamp <- sub("one year ago", "365 days ago", web_archiv
 
 # extract number of days from Date_of_Question and subtract from scrapting_date for exact timestamp
 web_archive$exact_question_timestamp <- web_archive$Url_Timestamp - as.numeric(gsub("\\D", "", web_archive$Question_Timestamp))
-#### or should i put this in the original date_of_question column? 
+
+cleaned_timestamps <- web_archive %>%
+  select(Book_Id, exact_question_timestamp) %>%
+  bind_rows(subset_df %>%
+              select(Book_Id, exact_question_timestamp))
 
 #####
 # --- MERGING --- #
-merged <- full_join(web_archive, subset_df, by = "Book_Id")
+binded <- bind_rows(subset_df,web_archive)
+#merged <- full_join(web_archive, subset_df, by = "Book_Id")
