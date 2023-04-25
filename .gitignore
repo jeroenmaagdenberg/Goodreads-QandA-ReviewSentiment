@@ -51,3 +51,4 @@ rsconnect/
 # Other
 **.DS_Store
 *.csv
+*.RDS

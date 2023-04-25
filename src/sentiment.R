@@ -11,7 +11,7 @@ reviews <- fread("dat/goodreads_reviews_clean.csv")
 
 # Tokenize the reviews using the unnest_tokens() function
 reviews_tokens <- reviews %>%
-  unnest_tokens(word, format = "text", review_text_incomplete)
+  unnest_tokens(word, format = "text", review_text)
 
 # --- Remove Stopwords --- #
 tidy_reviews <-
@@ -61,7 +61,7 @@ accuracy(reviews_sentiment_afinn,
 
 #####
 # vader
-vader_sent <- vader_df(reviews$review_text_incomplete)
+vader_sent <- vader_df(reviews$review_text)
 vader_sent <- vader_sent %>%
   mutate(
     vader_sent = case_when(
