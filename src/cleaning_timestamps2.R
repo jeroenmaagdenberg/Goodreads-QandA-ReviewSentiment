@@ -35,9 +35,9 @@ gr_reviews_clean_timestamps <- df_goodreads_reviews %>%
   mutate(clean_added = str_replace(clean_added, "Sep", "09")) %>%
   mutate(clean_added = str_replace(clean_added, "Oct", "10")) %>%
   mutate(clean_added = str_replace(clean_added, "Nov", "11")) %>%
-  mutate(clean_added = str_replace(clean_added, "Dec", "12")) 
-
-# %>% mutate(clean_added = strptime(clean_added, format = "%m%d%Y")) %>% mutate(clean_added = format(clean_added, format = "%m-%d-%Y"))
+  mutate(clean_added = str_replace(clean_added, "Dec", "12")) %>%
+  mutate(clean_added = strptime(clean_added, format = "%m%d%Y")) %>%
+  mutate(clean_added = format(clean_added, format = "%m-%d-%Y"))
 
 # write cleaned df to csv
 write.csv(gr_reviews_clean_timestamps, "~/Documents/GitHub/Goodreads-QandA-ReviewSentiment/dat/goodreads_reviews_clean.csv", row.names = FALSE)
