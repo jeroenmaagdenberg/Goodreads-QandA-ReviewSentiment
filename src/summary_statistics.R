@@ -1,5 +1,13 @@
 library(wordcloud)
 
+# summary statistics
+gr_unique_book_ids <- goodreads_full[!duplicated(goodreads_full$Book_Id),] %>%
+  select(Book_Id) # 14174 books
+
+dupes <- duplicated(cleaned_timestamps)
+sort(cleaned_timestamps[dupes]$Book_Id,)
+
+
 # summary statistics - AFINN
 
 mean_val <- mean(reviews_sentiment_afinn$sentiment_afinn2, na.rm = TRUE)

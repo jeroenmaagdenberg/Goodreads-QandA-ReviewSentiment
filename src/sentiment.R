@@ -1,4 +1,5 @@
 library(data.table)
+library(tidyverse)
 library(tidytext)
 library(dplyr)
 library(vader)
@@ -6,8 +7,34 @@ library(stringr)
 library(tokenizers)
 library(readr)
 
-setwd("~/Documents/GitHub/Goodreads-QandA-ReviewSentiment")
-reviews <- fread("dat/goodreads_reviews_clean.csv")
+# setwd("~/Documents/GitHub/Goodreads-QandA-ReviewSentiment")
+# reviews <- fread("dat/goodreads_reviews_clean.csv")
+
+reviews <- head(goodreads_reviews, 10000)
+# rm(goodreads_reviews,df_goodreads_reviews)
+
+reviews <- reviews %>%
+  mutate(
+    # remove links
+    review_text = str_remove_all(reviews$review_text, "https\\S*"),
+    review_text = str_remove_all(reviews$review_text, "http\\S*"),
+    review_text = str_remove_all(reviews$review_text, "goodreads.com*"),
+    # remove html stuff
+    review_text = str_remove_all(reviews$review_text, "amp"),
+    review_text = str_remove_all(reviews$review_text, "&S*"),
+    review_text = str_remove_all(reviews$review_text, "&#x27;|&quot;|&#x2F;"),
+    review_text = str_remove_all(reviews$review_text, "<a(.*?)>"),
+    review_text = str_remove_all(reviews$review_text, "<a[^>]*>[^<]*</a>"),
+    review_text = str_remove_all(reviews$review_text, "&gt;|&lt;|&amp;"),
+    review_text = str_remove_all(reviews$review_text, "&#[:digit:]+;"),
+    review_text = str_remove_all(reviews$review_text, "<[^>]*>"),
+    # remove numbers and special characters
+    review_text = str_remove_all(reviews$review_text, "[:digit:]"),
+    review_text = str_remove_all(reviews$review_text, "[^[:alpha:]\\s]+"),
+    # remove excess whitespace
+    review_text = str_squish(review_text),
+    review_text = str_trim(review_text)
+    )
 
 # Tokenize the reviews using the unnest_tokens() function
 reviews_tokens <- reviews %>%
@@ -25,7 +52,7 @@ tidy_afinn <-
 
 reviews_sentiment_afinn <-
   tidy_afinn %>%
-  group_by(review_id) %>% 
+  group_by(book_id, review_id) %>% 
   summarise(sentiment_afinn = sum(value, na.rm = TRUE),
             sentiment_afinn2 = mean(value, na.rm = TRUE)) %>%
   mutate(
@@ -41,10 +68,6 @@ reviews_sentiment_afinn <-
     )
   )
 
-### check for removed reviews due to the cleaning process
-# check <- full_join(reviews, reviews_sentiment_afinn, by = "review_id") %>% filter(is.na(sentiment_afinn))
-
-
 ### accuracy 
 library(yardstick)
 conf_mat(reviews_sentiment_afinn,
@@ -58,6 +81,27 @@ accuracy(reviews_sentiment_afinn,
          as.factor(afinn2)
 )
 
+
+### check for removed reviews due to the cleaning process
+# check <- full_join(reviews, reviews_sentiment_afinn, by = "review_id") %>% filter(is.na(sentiment_afinn))
+
+
+# Calculate the sentiment scores per book using afinn
+
+book_sentiment_afinn <-
+  tidy_afinn %>%
+  group_by(book_id) %>% 
+  summarise(sentiment_afinn_mean = mean(value, na.rm = TRUE)) %>%
+  mutate(
+    afinn = case_when(
+      sentiment_afinn_mean > 0 ~ "positive",
+      sentiment_afinn_mean < 0 ~ "negative",
+      TRUE ~ "neutral"
+    )
+  )
+
+# add each average to each book
+gr_questions_reviews <- full_join(goodreads_final, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
 
 #####
 # vader
