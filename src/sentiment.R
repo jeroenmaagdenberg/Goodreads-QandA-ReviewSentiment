@@ -1,6 +1,7 @@
 library(data.table)
 library(tidyverse)
 library(tidytext)
+library(textdata)
 library(dplyr)
 library(vader)
 library(stringr)
@@ -11,6 +12,8 @@ library(readr)
 # reviews <- fread("dat/goodreads_reviews_clean.csv")
 
 reviews <- head(goodreads_reviews, 10000)
+# reviews <- readRDS("C:/Users/u833934/Downloads/qa_subset_goodreads_text_merged.RDS") #for university PC
+
 # rm(goodreads_reviews,df_goodreads_reviews)
 
 reviews <- reviews %>%
