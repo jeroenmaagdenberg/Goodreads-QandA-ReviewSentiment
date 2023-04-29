@@ -53,6 +53,42 @@ tidy_afinn <-
   tidy_reviews %>%
   left_join(get_sentiments("afinn"))
 
+
+# Calculate the sentiment scores per book using afinn
+
+book_sentiment_afinn <-
+  tidy_afinn %>%
+  group_by(book_id) %>% 
+  summarise(sentiment_afinn_mean = mean(value, na.rm = TRUE)) %>%
+  mutate(
+    afinn = case_when(
+      sentiment_afinn_mean > 0 ~ "positive",
+      sentiment_afinn_mean < 0 ~ "negative",
+      TRUE ~ "neutral"
+    )
+  )
+
+# add each average to each book
+gr_questions_reviews_sent <- full_join(goodreads_questions, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
+
+#####
+# vader
+vader_sent <- vader_df(reviews$review_text)
+vader_sent <- vader_sent %>%
+  mutate(
+    vader_sent = case_when(
+      compound > 0.05 ~ "positive",
+      compound < -0.05 ~ "negative",
+      TRUE ~ "neutral")
+  )
+
+book_sentiment_vader <- reviews %>%
+  group_by(book_id) %>%
+  mutate(vader_sent = vader_df(reviews$review_text))
+
+
+
+#####
 reviews_sentiment_afinn <-
   tidy_afinn %>%
   group_by(book_id, review_id) %>% 
@@ -88,34 +124,3 @@ accuracy(reviews_sentiment_afinn,
 ### check for removed reviews due to the cleaning process
 # check <- full_join(reviews, reviews_sentiment_afinn, by = "review_id") %>% filter(is.na(sentiment_afinn))
 
-
-# Calculate the sentiment scores per book using afinn
-
-book_sentiment_afinn <-
-  tidy_afinn %>%
-  group_by(book_id) %>% 
-  summarise(sentiment_afinn_mean = mean(value, na.rm = TRUE)) %>%
-  mutate(
-    afinn = case_when(
-      sentiment_afinn_mean > 0 ~ "positive",
-      sentiment_afinn_mean < 0 ~ "negative",
-      TRUE ~ "neutral"
-    )
-  )
-
-# add each average to each book
-gr_questions_reviews_sent <- full_join(goodreads_questions, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
-
-#####
-# vader
-vader_sent <- vader_df(reviews$review_text)
-vader_sent <- vader_sent %>%
-  mutate(
-    vader_sent = case_when(
-      compound > 0.05 ~ "positive",
-      compound < -0.05 ~ "negative",
-      TRUE ~ "neutral")
-  )
-
-book_sentiment_vader <- reviews %>%
-  mutate(vader_sent = vader_df(reviews$review_text))
