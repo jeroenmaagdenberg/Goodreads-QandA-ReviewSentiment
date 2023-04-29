@@ -77,26 +77,31 @@ goodreads_binded <- bind_rows(subset_answers,web_archive)
 df_goodreads_reviews <- readRDS("dat/qa_subset_goodreads_text_merged.RDS")
 
 # create new variable and convert string to date
-gr_reviews_clean_timestamps <- df_goodreads_reviews %>%
+goodreads_reviews <- df_goodreads_reviews %>%
   mutate(date_added = as.character(date_added)) %>%
-  mutate(clean_added = str_sub(date_added, start = 5, end = 10)) %>%
+  mutate(date = str_sub(date_added, start = 5, end = 10)) %>%
   mutate(year_added = str_sub(date_added, start = 27, end = 30)) %>%
-  mutate(clean_added = paste(clean_added, year_added)) %>%
+  mutate(date = paste(date, year_added)) %>%
   select(!year_added) %>%
-  mutate(clean_added = str_replace(clean_added, "Jan", "01")) %>%
-  mutate(clean_added = str_replace(clean_added, "Feb", "02")) %>%
-  mutate(clean_added = str_replace(clean_added, "Mar", "03")) %>%
-  mutate(clean_added = str_replace(clean_added, "Apr", "04")) %>%
-  mutate(clean_added = str_replace(clean_added, "May", "05")) %>%
-  mutate(clean_added = str_replace(clean_added, "Jun", "06")) %>%
-  mutate(clean_added = str_replace(clean_added, "Jul", "07")) %>%
-  mutate(clean_added = str_replace(clean_added, "Aug", "08")) %>%
-  mutate(clean_added = str_replace(clean_added, "Sep", "09")) %>%
-  mutate(clean_added = str_replace(clean_added, "Oct", "10")) %>%
-  mutate(clean_added = str_replace(clean_added, "Nov", "11")) %>%
-  mutate(clean_added = str_replace(clean_added, "Dec", "12")) %>%
-  mutate(clean_added = strptime(clean_added, format = "%m%d%Y")) %>%
-  mutate(clean_added = format(clean_added, format = "%m-%d-%Y"))
+  mutate(date = str_replace(date, "Jan", "01")) %>%
+  mutate(date = str_replace(date, "Feb", "02")) %>%
+  mutate(date = str_replace(date, "Mar", "03")) %>%
+  mutate(date = str_replace(date, "Apr", "04")) %>%
+  mutate(date = str_replace(date, "May", "05")) %>%
+  mutate(date = str_replace(date, "Jun", "06")) %>%
+  mutate(date = str_replace(date, "Jul", "07")) %>%
+  mutate(date = str_replace(date, "Aug", "08")) %>%
+  mutate(date = str_replace(date, "Sep", "09")) %>%
+  mutate(date = str_replace(date, "Oct", "10")) %>%
+  mutate(date = str_replace(date, "Nov", "11")) %>%
+  mutate(date = str_replace(date, "Dec", "12")) %>%
+  mutate(date = strptime(date, format = "%m%d%Y")) %>%
+  mutate(date = format(date, format = "%Y-%m-%d"))
 
-# i guess this merge is wrong and not necessary
-# goodreads_full <- merge(goodreads_binded, gr_reviews_clean_timestamps, by.x = "Book_Id", by.y = "book_id", all.x = TRUE, all.y = TRUE)
+# merge questions and reviews
+goodreads_full <- merge(goodreads_binded, goodreads_reviews, by.x = "Book_Id", by.y = "book_id", all.x = TRUE, all.y = TRUE)
+
+# create dummy for treatment
+goodreads_full$date <- as.Date(goodreads_full$date)
+goodreads_full$Url_Timestamp <- as.Date(goodreads_full$Url_Timestamp)
+goodreads_full$treated <- ifelse(goodreads_full$date > goodreads_full$Url_Timestamp, 1, 0)
