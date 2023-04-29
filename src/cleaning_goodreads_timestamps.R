@@ -14,6 +14,18 @@ setwd('~/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 
 df_goodreads_books <- fread("dat/2864_goodreads_com_book_full.csv")
 
+df_goodreads_books <- df_goodreads_books %>%
+  select(!Star_rating) %>%
+  select(!Number_of_ratings) %>%
+  select(!Genres_displayed) %>%
+  select(!Kindle_Store_price) %>%
+  select(!Answer_Url) %>%
+  select(!Searched_Url) %>%
+  select(!Number_of_Comments_for_Answer) %>%
+  select(!Answer) %>%
+  select(!Date_of_Answer) %>%
+  select(!Answer_Likes)
+
 # remove all observations with no value in Date_of_Question column
 subset_answers <- df_goodreads_books %>%
   filter(Date_of_Question != "")
@@ -34,10 +46,21 @@ subset_answers$Scrapting_Date <- as.Date(subset_answers$Scrapting_Date)
 # extract number of days from Date_of_Question and subtract from scrapting_date for exact timestamp
 subset_answers$exact_question_timestamp <- subset_answers$Scrapting_Date - as.numeric(gsub("\\D", "", subset_answers$Date_of_Question))
 
+subset_answers <- subset_answers %>%
+  distinct(.keep_all = TRUE)
+
+# dupes <- duplicated(subset_answers$Book_Id)
+# dupe <- subset_answers[dupes, drop = FALSE]
+
 #####
 ### convert years to days
 
 web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")
+
+# delete unnecessary columns 
+web_archive <- web_archive %>%
+  select(!Url) %>%
+  select(!Searched_Url)
 
 # transform Url_timestamp to date
 web_archive <- web_archive %>%
@@ -65,16 +88,20 @@ cleaned_timestamps <- web_archive %>%
 
 #####
 # --- MERGING Answers --- #
-goodreads_binded <- bind_rows(subset_answers,web_archive)
+goodreads_questions <- bind_rows(subset_answers,web_archive)
 
-# merged <- full_join(df, cleaned_timestamps, by = "Book_Id", relationship = "many-to-many")
+# merged <- inner_join(df, cleaned_timestamps, by = "Book_Id", relationship = "many-to-many")
 # merged <- merged %>% drop_na(exact_question_timestamp)
 # merged <- merged[!duplicated(merged$Book_Id),]
 
 
 ##### 
-# read subsetgoodreads reviews
+# read subset goodreads reviews
 df_goodreads_reviews <- readRDS("dat/qa_subset_goodreads_text_merged.RDS")
+
+df_goodreads_reviews <- df_goodreads_reviews %>%
+  select(!date_updated) %>%
+  select(!user_id)
 
 # create new variable and convert string to date
 goodreads_reviews <- df_goodreads_reviews %>%
@@ -99,9 +126,20 @@ goodreads_reviews <- df_goodreads_reviews %>%
   mutate(date = format(date, format = "%Y-%m-%d"))
 
 # merge questions and reviews
-goodreads_full <- merge(goodreads_binded, goodreads_reviews, by.x = "Book_Id", by.y = "book_id", all.x = TRUE, all.y = TRUE)
+goodreads_full <- merge(goodreads_questions, goodreads_reviews, by.x = "Book_Id", by.y = "book_id", all.x = TRUE, all.y = TRUE)
+
+# prepare merged dataframe for analyses
+goodreads_full <- goodreads_full %>%
+  mutate(Likes = replace_na(Likes, 0)) %>%
+  mutate(Number_of_Answers = replace_na(Number_of_Answers, 0))
 
 # create dummy for treatment
 goodreads_full$date <- as.Date(goodreads_full$date)
 goodreads_full$Url_Timestamp <- as.Date(goodreads_full$Url_Timestamp)
-goodreads_full$treated <- ifelse(goodreads_full$date > goodreads_full$Url_Timestamp, 1, 0)
+goodreads_full$treated <- ifelse(goodreads_full$date > goodreads_full$exact_question_timestamp, 1, 0)
+
+# nas <- is.na(goodreads_full$treated)
+# na <- goodreads_full[nas, drop = FALSE]
+# sum(duplicated(goodreads_full$review_id))
+# dupes <- duplicated(goodreads_full$review_id)
+# dupe <- goodreads_full[dupes, drop = FALSE]

@@ -104,7 +104,7 @@ book_sentiment_afinn <-
   )
 
 # add each average to each book
-gr_questions_reviews <- full_join(goodreads_final, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
+gr_questions_reviews_sent <- full_join(goodreads_questions, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
 
 #####
 # vader
@@ -117,3 +117,5 @@ vader_sent <- vader_sent %>%
       TRUE ~ "neutral")
   )
 
+book_sentiment_vader <- reviews %>%
+  mutate(vader_sent = vader_df(reviews$review_text))
