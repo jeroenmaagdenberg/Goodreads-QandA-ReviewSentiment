@@ -11,8 +11,9 @@ library(readr)
 # setwd("~/Documents/GitHub/Goodreads-QandA-ReviewSentiment")
 # reviews <- fread("dat/goodreads_reviews_clean.csv")
 
-reviews <- head(goodreads_reviews, 10000)
-# reviews <- readRDS("C:/Users/u833934/Downloads/qa_subset_goodreads_text_merged.RDS") #for university PC
+reviews <- head(goodreads_reviews, 1000)
+# reviews <- goodreads_full # for full file
+# reviews <- readRDS("C:/Users/u833934/Downloads/qa_subset_goodreads_text_merged.RDS") #for testing on university PC
 
 # rm(goodreads_reviews,df_goodreads_reviews)
 
@@ -69,7 +70,10 @@ book_sentiment_afinn <-
   )
 
 # add each average to each book
-gr_questions_reviews_sent <- full_join(goodreads_questions, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
+gr_questions_reviews_sent <- full_join(goodreads_full, book_sentiment_afinn, by = c("Book_Id" = "book_id"))
+
+
+
 
 #####
 # vader
@@ -89,23 +93,26 @@ book_sentiment_vader <- reviews %>%
 
 
 #####
-# reviews_sentiment_afinn <- tidy_afinn %>%
-#   group_by(book_id, review_id) %>% 
-#   summarise(sentiment_afinn = sum(value, na.rm = TRUE),
-#             sentiment_afinn2 = mean(value, na.rm = TRUE)) %>%
-#   mutate(
-#     afinn = case_when(
-#       sentiment_afinn > 0 ~ "positive",
-#       sentiment_afinn < 0 ~ "negative",
-#       TRUE ~ "neutral"
-#     ),
-#     afinn2 = case_when(
-#       sentiment_afinn2 > 0 ~ "positive",
-#       sentiment_afinn2 < 0 ~ "negative",
-#       TRUE ~ "neutral"
-#     )
-#   )
-# 
+reviews_sentiment_afinn <- tidy_afinn %>%
+  group_by(book_id, review_id) %>%
+  summarise(sentiment_afinn = sum(value, na.rm = TRUE),
+            sentiment_afinn_mean = mean(value, na.rm = TRUE)) %>%
+  mutate(
+    afinn = case_when(
+      sentiment_afinn > 0 ~ "positive",
+      sentiment_afinn < 0 ~ "negative",
+      TRUE ~ "neutral"
+    ),
+    afinn2 = case_when(
+      sentiment_afinn_mean > 0 ~ "positive",
+      sentiment_afinn_mean < 0 ~ "negative",
+      TRUE ~ "neutral"
+    )
+  )
+
+gr_questions_reviews_sent2 <- full_join(goodreads_full, reviews_sentiment_afinn, by = "review_id")
+
+
 ### accuracy 
 # library(yardstick)
 # conf_mat(reviews_sentiment_afinn,
