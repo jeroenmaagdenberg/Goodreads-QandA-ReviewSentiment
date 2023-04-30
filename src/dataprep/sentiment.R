@@ -4,67 +4,71 @@ library(tidytext)
 library(textdata)
 library(dplyr)
 library(vader)
-library(stringr)
 library(tokenizers)
 library(readr)
 
 # setwd("~/Documents/GitHub/Goodreads-QandA-ReviewSentiment")
-reviews <- readRDS("qa_subset_goodreads_text_merged.RDS")
-
-reviews <- head(goodreads_reviews, 10000)
-# reviews <- goodreads_full # for full file
 # reviews <- readRDS("C:/Users/u833934/Downloads/qa_subset_goodreads_text_merged.RDS") #for testing on university PC
 
-# rm(goodreads_reviews,df_goodreads_reviews)
+reviews <- readRDS("gen/dataprep/goodreads_reviews.RDS")
 
 reviews <- reviews %>%
-  mutate(
-    # remove links
-    review_text = str_remove_all(reviews$review_text, "https\\S*"),
-    review_text = str_remove_all(reviews$review_text, "http\\S*"),
-    review_text = str_remove_all(reviews$review_text, "goodreads.com*"),
-    # remove html stuff
-    review_text = str_remove_all(reviews$review_text, "amp"),
-    review_text = str_remove_all(reviews$review_text, "&S*"),
-    review_text = str_remove_all(reviews$review_text, "&#x27;|&quot;|&#x2F;"),
-    review_text = str_remove_all(reviews$review_text, "<a(.*?)>"),
-    review_text = str_remove_all(reviews$review_text, "<a[^>]*>[^<]*</a>"),
-    review_text = str_remove_all(reviews$review_text, "&gt;|&lt;|&amp;"),
-    review_text = str_remove_all(reviews$review_text, "&#[:digit:]+;"),
-    review_text = str_remove_all(reviews$review_text, "<[^>]*>"),
-    # remove numbers and special characters
-    review_text = str_remove_all(reviews$review_text, "[:digit:]"),
-    review_text = str_remove_all(reviews$review_text, "[^[:alpha:]\\s]+"),
-    # remove excess whitespace
-    review_text = str_squish(review_text),
-    review_text = str_trim(review_text)
-    )
+  select(!date_added) %>%
+  select(!date)
+
+reviews <- head(reviews, 100000)
 
 # Tokenize the reviews using the unnest_tokens() function
-reviews_tokens <- goodreads_full %>%
-  unnest_tokens(word, format = "text", review_text)
+reviews_tokens <- reviews %>%
+  unnest_tokens(word, format = "text", review_text) %>%
+  rename("Book_Id" = "book_id")
 
 # --- Remove Stopwords --- #
-tidy_reviews <-
-  reviews_tokens %>%
+tidy_reviews <- reviews_tokens %>%
   anti_join((stop_words))
+rm(reviews_tokens)
 
 # Calculate the sentiment scores using afinn
 tidy_afinn <-
   tidy_reviews %>%
   left_join(get_sentiments("afinn"))
+rm(tidy_reviews)
 
 # Calculate the AFINN sentiment score per review 
 reviews_sentiment_afinn <- tidy_afinn %>%
   group_by(Book_Id, review_id) %>%
   summarise(sentiment_afinn_mean = ifelse(is.nan(mean(value, na.rm = TRUE)), NA, mean(value, na.rm = TRUE)))
 
+goodreads_full <- na.omit(goodreads_full, cols ="review_text")
+
+gr_reviewsentiment <- full_join(goodreads_full, reviews_sentiment_afinn, by = "review_id")
+gr_reviewsentiment <- gr_reviewsentiment %>%
+  group_by(Book_Id.x, review_id) %>%
+  summarise(AFINN_mean = mean(sentiment_afinn_mean, na.rm = TRUE),
+            AFINN_pretreat = mean(sentiment_afinn_mean[pre_treatment == 1], na.rm = TRUE),
+            AFINN_posttreat = mean(sentiment_afinn_mean[post_treatment == 1], na.rm = TRUE)) %>%
+  rename("Book_Id" = "Book_Id.x")
+
+
+### create file for sentiment analyses per book
+goodreads_r_sentiment <- left_join(goodreads_full, gr_reviewsentiment, by = "review_id")
+goodreads_r_sentiment <- goodreads_r_sentiment %>%
+  mutate(Likes = replace_na(Likes, 0)) %>%
+  rename("Book_Id" = "Book_Id.x") %>%
+  mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
+  select(!review_text) %>%
+  select(!Book_Id.y) %>%
+  arrange(Book_Id) 
+
+
+
+
+
 # Calculate the AFINN sentiment scores per book 
 book_sentiment_afinn <- reviews_sentiment_afinn %>%
   group_by(Book_Id) %>% 
   summarise(AFINN_mean = mean(sentiment_afinn_mean, na.rm = TRUE))
 
-goodreads_full <- na.omit(goodreads_full, cols ="review_text")
 
 gr_booksentiment <- full_join(goodreads_full, reviews_sentiment_afinn, by = "review_id")
 gr_booksentiment <- gr_booksentiment %>%
@@ -76,7 +80,7 @@ gr_booksentiment <- gr_booksentiment %>%
 # add each book average to each book
 gr_booksentiment <- full_join(book_sentiment_afinn, gr_booksentiment, by = "Book_Id")
 
-### create file for sentiment analyses
+### create file for sentiment analyses per book
 goodreads_sentiment <- left_join(goodreads_questions, gr_booksentiment, by = "Book_Id")
 goodreads_sentiment <- goodreads_sentiment %>%
   mutate(Likes = replace_na(Likes, 0)) %>%
