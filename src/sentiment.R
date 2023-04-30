@@ -87,6 +87,9 @@ goodreads_sentiment <- goodreads_sentiment %>%
   select(!Question_Timestamp) %>%
   arrange(Book_Id)
 
+
+write.csv(goodreads_sentiment, "gen/dataprep/goodreads_sentiment.csv")
+
 #####
 # vader # doesnt work correctly
 vader_sent <- vader_df(reviews$review_text)
