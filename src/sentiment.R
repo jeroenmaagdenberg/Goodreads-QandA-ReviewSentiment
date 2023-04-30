@@ -9,7 +9,7 @@ library(tokenizers)
 library(readr)
 
 # setwd("~/Documents/GitHub/Goodreads-QandA-ReviewSentiment")
-# reviews <- fread("dat/goodreads_reviews_clean.csv")
+reviews <- readRDS("qa_subset_goodreads_text_merged.RDS")
 
 reviews <- head(goodreads_reviews, 1000)
 # reviews <- goodreads_full # for full file
@@ -111,6 +111,44 @@ reviews_sentiment_afinn <- tidy_afinn %>%
   )
 
 gr_questions_reviews_sent2 <- full_join(goodreads_full, reviews_sentiment_afinn, by = "review_id")
+
+
+###### test
+reviews_tokens <- goodreads_full %>%
+  unnest_tokens(word, format = "text", review_text)
+
+# --- Remove Stopwords --- #
+tidy_reviews <-
+  reviews_tokens %>%
+  anti_join((stop_words))
+
+# Calculate the sentiment scores using afinn
+tidy_afinn <-
+  tidy_reviews %>%
+  left_join(get_sentiments("afinn"))
+reviews_sentiment_afinn <- tidy_afinn %>%
+  group_by(Book_Id, review_id) %>%
+  summarise(sentiment_afinn = sum(value, na.rm = TRUE),
+            sentiment_afinn_mean = mean(value, na.rm = TRUE)) %>%
+  mutate(
+    afinn = case_when(
+      sentiment_afinn > 0 ~ "positive",
+      sentiment_afinn < 0 ~ "negative",
+      TRUE ~ "neutral"
+    ),
+    afinn2 = case_when(
+      sentiment_afinn_mean > 0 ~ "positive",
+      sentiment_afinn_mean < 0 ~ "negative",
+      TRUE ~ "neutral"
+    )
+  )
+
+data <- goodreads_full %>% 
+  filter(pre_treatment == 1) %>%
+  mutate(mean_pre = mean(pre_treatment))
+
+
+
 
 
 ### accuracy 

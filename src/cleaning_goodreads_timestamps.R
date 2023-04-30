@@ -161,8 +161,8 @@ goodreads_reviews <- goodreads_reviews %>%
   mutate(date = str_replace(date, "Nov", "11")) %>%
   mutate(date = str_replace(date, "Dec", "12")) %>%
   mutate(date = strptime(date, format = "%m%d%Y")) %>%
-  mutate(date = format(date, format = "%Y-%m-%d")) %>%
-  mutate(date = as.Date(goodreads_reviews$date))
+  mutate(date = format(date, format = "%Y-%m-%d"))
+goodreads_reviews$date <- as.Date(goodreads_reviews$date)
 
 write.csv(goodreads_reviews, "gen/dataprep/goodreads_reviews.csv")
 
