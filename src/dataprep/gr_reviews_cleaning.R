@@ -14,7 +14,7 @@ goodreads_reviews <- goodreads_reviews %>%
   select(!user_id) %>%
   select(!rating)
 
-# goodreads_reviews <- head(goodreads_reviews, 10000)
+# goodreads_reviews <- head(goodreads_reviews, 100)
 
 # replace review_text with only white spaces with NA and get rid of all NA reviews
 goodreads_reviews$review_text[goodreads_reviews$review_text == ""] <- NA
@@ -72,5 +72,4 @@ goodreads_reviews <- goodreads_reviews %>%
 
 goodreads_reviews$date <- as.Date(goodreads_reviews$date)
 
-# fwrite(goodreads_reviews, "gen/dataprep/goodreads_reviews.csv", row.names = FALSE)
 saveRDS(goodreads_reviews, "gen/dataprep/goodreads_reviews.RDS", compress = TRUE)

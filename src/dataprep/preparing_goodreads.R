@@ -26,7 +26,6 @@ goodreads_full$post_treatment[is.na(goodreads_full$post_treatment)] <- 0
 goodreads_full <- na.omit(goodreads_full, cols ="review_text")
 
 goodreads_full <- goodreads_full %>%
-  select(!Question) %>%
   select(!Date_of_Question) %>%
   select(!Scraping_Date) %>%
   select(!Question_Timestamp) %>%

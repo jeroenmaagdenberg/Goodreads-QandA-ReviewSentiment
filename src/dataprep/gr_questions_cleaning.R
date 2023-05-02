@@ -35,10 +35,6 @@ subset_questions <- goodreads_books %>%
   filter(Date_of_Question != "") %>%
   distinct(.keep_all = TRUE)
 
-# compute unique book ids for day/month file
-# unique_book_Ids <- subset_questions[!duplicated(subset_questions$Book_Id),] %>%
-#   select(Book_Id)
-
 # subset to rows that contain "day" or "month" in Date_of_Question
 subset_questions <- subset_questions[grep("day|month", subset_questions$Date_of_Question)]
 
@@ -62,6 +58,7 @@ web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")
 # delete unnecessary columns and transform Scraping_Date column to date
 web_archive <- web_archive %>%
   select(!Url) %>%
+  select(!Question) %>%
   select(!Searched_Url) %>%
   select(!Isbn13) %>%
   mutate(Scraping_Date = as.Date(Scraping_Date))

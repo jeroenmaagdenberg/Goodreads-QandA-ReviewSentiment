@@ -1,12 +1,23 @@
 library(wordcloud)
 
+# summary statistics - Goodreads
+goodreads_books <- fread("dat/2864_goodreads_com_book_full.csv")
+web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")
+test <- readRDS("dat/qa_subset_goodreads_text_merged.RDS")
+
+
+
 # summary statistics
+
+# compute unique book ids
+unique_book_ids <- goodreads_books[!duplicated(goodreads_books$Book_Id),] %>%
+  select(Book_Id) # 100034 books
+unique_book_ids2 <- web_archive[!duplicated(web_archive$Book_Id),] %>%
+  select(Book_Id) # 12139 books
 gr_unique_book_ids <- goodreads_full[!duplicated(goodreads_full$Book_Id),] %>%
-  select(Book_Id) # 14174 books
+  select(Book_Id) # 14125 books with questions and reviews
 
-dupes <- duplicated(cleaned_timestamps)
-sort(cleaned_timestamps[dupes]$Book_Id,)
-
+tidy_afinn %>% count(word, sort = T)
 
 # summary statistics - AFINN
 
