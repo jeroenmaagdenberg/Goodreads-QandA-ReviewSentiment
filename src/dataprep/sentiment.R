@@ -22,6 +22,7 @@ reviews <- reviews %>%
 reviews_tokens <- reviews %>%
   unnest_tokens(word, format = "text", review_text) %>%
   rename("Book_Id" = "book_id")
+rm(reviews)
 
 # --- Remove Stopwords --- #
 tidy_reviews <- reviews_tokens %>%
@@ -44,23 +45,23 @@ goodreads_full <- na.omit(goodreads_full, cols ="review_text")
 gr_reviewsentiment <- full_join(goodreads_full, reviews_sentiment_afinn, by = "review_id")
 gr_reviewsentiment <- gr_reviewsentiment %>%
   group_by(Book_Id.x, review_id) %>%
-  summarise(AFINN_score = sum(sentiment_afinn, na.rm = TRUE),
-            AFINN_pretreat = sum(sentiment_afinn[pre_treatment == 1], na.rm = TRUE),
-            AFINN_posttreat = sum(sentiment_afinn[post_treatment == 1], na.rm = TRUE)) %>%
+  summarise(AFINN_score = sum(sentiment_afinn, na.rm = TRUE) #,
+            #AFINN_pretreat = sum(sentiment_afinn[treated == 0], na.rm = TRUE),
+            #AFINN_posttreat = sum(sentiment_afinn[treated == 1], na.rm = TRUE) 
+            ) %>%
   rename("Book_Id" = "Book_Id.x")
 
 
 ### create file for sentiment analyses per book
-goodreads_r_sentiment <- left_join(goodreads_full, gr_reviewsentiment, by = "review_id")
+goodreads_r_sentiment <- left_join(goodreads_full, gr_reviewsentiment, by = c("review_id", "Book_Id"))
 goodreads_r_sentiment <- goodreads_r_sentiment %>%
   mutate(Likes = replace_na(Likes, 0)) %>%
-  rename("Book_Id" = "Book_Id.x") %>%
   mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
   select(!review_text) %>%
-  select(!Book_Id.y) %>%
   arrange(Book_Id) 
 
 
+write.csv(goodreads_r_sentiment, "gen/dataprep/goodreads_r_sentiment.csv")
 
 
 
@@ -70,13 +71,12 @@ book_sentiment_afinn <- reviews_sentiment_afinn %>%
   summarise(AFINN_score = sum(sentiment_afinn, na.rm = TRUE))   
 #### should i do it per book with sum or with mean? 
 
-gr_booksentiment <- full_join(goodreads_full, reviews_sentiment_afinn, by = "review_id")
+gr_booksentiment <- full_join(goodreads_full, reviews_sentiment_afinn, by = c("review_id", "Book_Id"))
 gr_booksentiment <- gr_booksentiment %>%
-  group_by(Book_Id.x) %>%
-  summarise(AFINN_score = sum(sentiment_afinn, na.rm = TRUE),
-            AFINN_pretreat = sum(sentiment_afinn[pre_treatment == 1], na.rm = TRUE),
-            AFINN_posttreat = sum(sentiment_afinn[post_treatment == 1], na.rm = TRUE)) %>% 
-  rename("Book_Id" = "Book_Id.x") 
+  group_by(Book_Id) %>%
+  summarise(#AFINN_score = sum(sentiment_afinn, na.rm = TRUE),
+            AFINN_pretreat = sum(sentiment_afinn[treated == 0], na.rm = TRUE),
+            AFINN_posttreat = sum(sentiment_afinn[treated == 1], na.rm = TRUE))
 #### now the pre and post are together the same as the regular score. Something in me says that this shouldnt be the case.
 
 
@@ -89,7 +89,6 @@ goodreads_b_sentiment <- left_join(goodreads_questions, gr_booksentiment, by = "
 goodreads_b_sentiment <- goodreads_b_sentiment %>%
   mutate(Likes = replace_na(Likes, 0)) %>%
   mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
-  select(!Question) %>%
   select(!Date_of_Question) %>%
   select(!Scraping_Date) %>%
   select(!Question_Timestamp) %>%

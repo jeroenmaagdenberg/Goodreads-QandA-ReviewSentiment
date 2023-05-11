@@ -15,49 +15,58 @@ unique_book_ids <- goodreads_books[!duplicated(goodreads_books$Book_Id),] %>%
 unique_book_ids2 <- web_archive[!duplicated(web_archive$Book_Id),] %>%
   select(Book_Id) # 12139 books
 gr_unique_book_ids <- goodreads_full[!duplicated(goodreads_full$Book_Id),] %>%
-  select(Book_Id) # 14125 books with questions and reviews
+  select(Book_Id) # 14123 books with questions and reviews
 
 tidy_afinn %>% count(word, sort = T)
 
+
 # summary statistics - AFINN
 
-mean_val <- mean(reviews_sentiment_afinn$sentiment_afinn2, na.rm = TRUE)
-sd_val <- sd(reviews_sentiment_afinn$sentiment_afinn2, na.rm = TRUE)
-max_val <- max(reviews_sentiment_afinn$sentiment_afinn2, na.rm = TRUE)
-min_val <- min(reviews_sentiment_afinn$sentiment_afinn2, na.rm = TRUE)
+gr_AFINN_mean <- round(mean(goodreads_r_sentiment$AFINN_score, na.rm = TRUE), 4)
+gr_AFINN_sd <- round(sd(goodreads_r_sentiment$AFINN_score, na.rm = TRUE), 4)
+gr_AFINN_max <- round(max(goodreads_r_sentiment$AFINN_score, na.rm = TRUE), 4)
+gr_AFINN_min <- round(min(goodreads_r_sentiment$AFINN_score, na.rm = TRUE), 4)
 
-mean_val
-sd_val
-max_val
-min_val
+# summary statistics - Likes
+
+gr_likes_mean <- round(mean(goodreads_b_sentiment$Likes, na.rm = TRUE), 4)
+gr_likes_sd <- round(sd(goodreads_b_sentiment$Likes, na.rm = TRUE), 4)
+gr_likes_max <- round(max(goodreads_b_sentiment$Likes, na.rm = TRUE), 4)
+gr_likes_min <- round(min(goodreads_b_sentiment$Likes, na.rm = TRUE), 4)
 
 
-# Compute sample size
-n <- nrow(reviews_sentiment_afinn)
+# summary statistics - Number of Answers
+
+gr_num_answ_mean <- round(mean(goodreads_b_sentiment$Number_of_answers, na.rm = TRUE), 4)
+gr_num_answ_sd <- round(sd(goodreads_b_sentiment$Number_of_answers, na.rm = TRUE), 4)
+gr_num_answ_max <- round(max(goodreads_b_sentiment$Number_of_answers, na.rm = TRUE), 4)
+gr_num_answ_min <- round(min(goodreads_b_sentiment$Number_of_answers, na.rm = TRUE), 4)
+
+# overview treated vs non-treated (before / after top question)
+table(goodreads_r_sentiment$treated )
+
+# treated AFINN statistics (before / after top question)
+AFINN_sd_pre <- round(sd(subset(goodreads_r_sentiment, treated == 0)$AFINN_score), 4)
+AFINN_sd_post <- round(sd(subset(goodreads_r_sentiment, treated == 1)$AFINN_score), 4)
+
+AFINN_var_pre <- round(var(subset(goodreads_r_sentiment, treated == 0)$AFINN_score), 4)
+AFINN_var_post <- round(var(subset(goodreads_r_sentiment, treated == 1)$AFINN_score), 4)
+
+AFINN_mean_pre <- round(mean(subset(goodreads_r_sentiment, treated == 0)$AFINN_score), 4)
+AFINN_mean_post <- round(mean(subset(goodreads_r_sentiment, treated == 1)$AFINN_score), 4)
 
 
 # plot- AFINN
-word_counts <- reviews_tokens %>%
-  count(word, sort = TRUE) %>%
-  filter(n > 10)
+# word_counts <- reviews_tokens %>%
+#   count(word, sort = TRUE) %>%
+#   filter(n > 10)
+# 
+# ggplot(word_counts, aes(x = n, y = reorder(word, n))) +
+#   geom_point() +
+#   scale_x_log10() +
+#   xlab("Word Count (log scale)") +
+#   ylab("Words")
 
-ggplot(word_counts, aes(x = n, y = reorder(word, n))) +
-  geom_point() +
-  scale_x_log10() +
-  xlab("Word Count (log scale)") +
-  ylab("Words")
-
-
-# summary statistics - Vader
-mean_vader <- mean(vader_sent$compound, na.rm = TRUE)
-sd_vader <- sd(c, na.rm = TRUE)
-ax_val <- max(vader_sent$compound, na.rm = TRUE)
-min_val <- min(vader_sent$compound, na.rm = TRUE)
-
-n_vader <- table(vader_sent$vader_sent)
-n_vader
-
-# plot - vader
 
 
 

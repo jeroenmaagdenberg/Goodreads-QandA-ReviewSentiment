@@ -10,17 +10,22 @@ goodreads_full <- merge(goodreads_questions, goodreads_reviews, by.x = "Book_Id"
 # prepare merged dataframe for analyses
 goodreads_full <- goodreads_full %>%
   mutate(Likes = replace_na(Likes, 0)) %>%
-  mutate(Number_of_Answers = replace_na(Number_of_Answers, 0))
+  mutate(Likes = as.numeric(Likes)) %>%
+  mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
+  mutate(Number_of_Answers = as.numeric(Number_of_Answers))
 
 # create dummy for treatments
 goodreads_full$date <- as.Date(goodreads_full$date)
 goodreads_full$exact_question_timestamp <- as.Date(goodreads_full$exact_question_timestamp)
 
-goodreads_full$pre_treatment <- ifelse(goodreads_full$date < goodreads_full$exact_question_timestamp, 1, 0)
-goodreads_full$pre_treatment[is.na(goodreads_full$pre_treatment)] <- 0
+# goodreads_full$pre_treatment <- ifelse(goodreads_full$date < goodreads_full$exact_question_timestamp, 1, 0)
+# goodreads_full$pre_treatment[is.na(goodreads_full$pre_treatment)] <- 0
 
-goodreads_full$post_treatment <- ifelse(goodreads_full$date > goodreads_full$exact_question_timestamp, 1, 0)
-goodreads_full$post_treatment[is.na(goodreads_full$post_treatment)] <- 0
+# goodreads_full$post_treatment <- ifelse(goodreads_full$date > goodreads_full$exact_question_timestamp, 1, 0)
+# goodreads_full$post_treatment[is.na(goodreads_full$post_treatment)] <- 0
+
+goodreads_full$treated <- ifelse(goodreads_full$date > goodreads_full$exact_question_timestamp, 1, 0)
+goodreads_full$treated[is.na(goodreads_full$treated)] <- 0
 
 # prepare
 goodreads_full <- na.omit(goodreads_full, cols ="review_text")

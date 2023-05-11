@@ -68,7 +68,8 @@ goodreads_reviews <- goodreads_reviews %>%
   mutate(date = str_replace(date, "Nov", "11")) %>%
   mutate(date = str_replace(date, "Dec", "12")) %>%
   mutate(date = strptime(date, format = "%m%d%Y")) %>%
-  mutate(date = format(date, format = "%Y-%m-%d"))
+  mutate(date = format(date, format = "%Y-%m-%d")) %>%
+  mutate(Year_Month = str_sub(date, 0, 7))
 
 goodreads_reviews$date <- as.Date(goodreads_reviews$date)
 

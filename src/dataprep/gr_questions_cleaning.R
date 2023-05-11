@@ -30,6 +30,19 @@ goodreads_books <- goodreads_books %>%
   select(!Isbn13) %>%
   rename(Scraping_Date = Scrapting_Date)
 
+# create a list with books and their respective likes and number of answers
+book_likes_and_num_answers <- goodreads_books %>%
+  select(!Scraping_Date) %>%
+  select(!Title) %>%
+  select(!Date_of_Question) %>%
+  filter(Number_of_Answers >= 0) %>%
+  mutate(Likes = replace_na(Likes, 0)) %>%
+  mutate(Likes = as.numeric(Likes)) %>%
+  mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
+  mutate(Number_of_Answers = as.numeric(Number_of_Answers)) %>%
+  arrange(Book_Id) %>%
+  distinct(.keep_all = TRUE)
+
 # remove all observations with no value in Date_of_Question column and all duplicates
 subset_questions <- goodreads_books %>%
   filter(Date_of_Question != "") %>%
@@ -81,15 +94,24 @@ web_archive$Question_Timestamp <- sub("one year ago", "365 days ago", web_archiv
 web_archive$exact_question_timestamp <- web_archive$Url_Timestamp - as.numeric(gsub("\\D", "", web_archive$Question_Timestamp))
 
 
-#####
-# --- MERGING Questions --- #
+# Merge Questions
 goodreads_questions <- bind_rows(subset_questions,web_archive)
 
+# add the likes and number of answers to the questions
+goodreads_questions <- goodreads_questions %>%
+  left_join(book_likes_and_num_answers, by = "Book_Id") %>%
+  mutate(Likes = coalesce(Likes.y, Likes.x),
+         Number_of_Answers = coalesce(Number_of_Answers.y, Number_of_Answers.x)) %>%
+  select(-Likes.y, -Number_of_Answers.y, -Likes.x, -Number_of_Answers.x) %>%
+  arrange(Book_Id)
+
+
 # create overview with just Ids and timestamps
-cleaned_timestamps <- web_archive %>%
-  select(Book_Id, exact_question_timestamp) %>%
-  bind_rows(subset_questions %>%
-              select(Book_Id, exact_question_timestamp))
+cleaned_timestamps <- goodreads_questions %>%
+  select(Book_Id, exact_question_timestamp) # can probably get deleted
+
+# clean environment
+rm(subset_questions, web_archive, book_likes_and_num_answers)
 
 # write merged file to csv
 write.csv(goodreads_questions, "gen/dataprep/goodreads_questions.csv", row.names = FALSE)
