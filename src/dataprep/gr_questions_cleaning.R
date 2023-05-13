@@ -105,11 +105,6 @@ goodreads_questions <- goodreads_questions %>%
   select(-Likes.y, -Number_of_Answers.y, -Likes.x, -Number_of_Answers.x) %>%
   arrange(Book_Id)
 
-
-# create overview with just Ids and timestamps
-cleaned_timestamps <- goodreads_questions %>%
-  select(Book_Id, exact_question_timestamp) # can probably get deleted
-
 # clean environment
 rm(subset_questions, web_archive, book_likes_and_num_answers)
 

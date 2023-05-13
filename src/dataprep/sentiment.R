@@ -52,19 +52,27 @@ gr_reviewsentiment <- gr_reviewsentiment %>%
   rename("Book_Id" = "Book_Id.x")
 
 
-### create file for sentiment analyses per book
+### create file for sentiment analyses per review
 goodreads_r_sentiment <- left_join(goodreads_full, gr_reviewsentiment, by = c("review_id", "Book_Id"))
 goodreads_r_sentiment <- goodreads_r_sentiment %>%
   mutate(Likes = replace_na(Likes, 0)) %>%
   mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
   select(!review_text) %>%
-  arrange(Book_Id) 
+  arrange(Book_Id) %>%
+  mutate(source = "GR") %>%
+  mutate(post_treatment = case_when(
+    source == "GR" & post == 1 ~ 1,
+    TRUE ~ 0
+  ))
+
+write.csv(goodreads_r_sentiment, "gen/dataprep/goodreads_r_sentiment.csv", row.names = FALSE)
 
 
-write.csv(goodreads_r_sentiment, "gen/dataprep/goodreads_r_sentiment.csv")
 
 
 
+
+##### book #####
 # Calculate the AFINN sentiment scores per book 
 book_sentiment_afinn <- reviews_sentiment_afinn %>%
   group_by(Book_Id) %>% 
@@ -92,8 +100,13 @@ goodreads_b_sentiment <- goodreads_b_sentiment %>%
   select(!Date_of_Question) %>%
   select(!Scraping_Date) %>%
   select(!Question_Timestamp) %>%
-  arrange(Book_Id)
+  arrange(Book_Id) %>%
+  mutate(source = "GR") %>%
+  mutate(post_treatment = case_when(
+    source == "GR" & post == 1 ~ 1,
+    TRUE ~ 0
+  ))
 
 
-write.csv(goodreads_b_sentiment, "gen/dataprep/goodreads_b_sentiment.csv")
+write.csv(goodreads_b_sentiment, "gen/dataprep/goodreads_b_sentiment.csv", row.names = FALSE)
 
