@@ -8,19 +8,6 @@ setwd('~/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 # read goodreads reviews 
 df_amazon_reviews <- readRDS("dat/qa_subset_amazon_text_merged.RDS")
 
-amazon_reviews <- df_amazon_reviews %>%
-  sample_n(size = 1000000, replace = FALSE)
-
-# keep only necessary columns and create review_ID
-amazon_reviews <- amazon_reviews %>% 
-  mutate(Amazon_ReviewId = row_number()) %>%
-  select(!summary) %>%
-  select(!overall) %>%
-  rename("review_text" = "reviewText") %>%
-  mutate(review_date = as.POSIXct(unixReviewTime, origin = "1970-01-01", tz = "UTC") %>% 
-           format("%Y-%m-%d")) %>%
-  select(!unixReviewTime) 
-
 # read overlap file
 overlap_titles <- read.table("dat/overlap_titles_amazon_gr.txt", header = TRUE)
 
@@ -32,18 +19,35 @@ overlap_titles <- overlap_titles %>%
 
 booklist <- goodreads_questions %>%
   select(Book_Id) %>%
-  distinct()
+  distinct() 
 
+# due to hardware constraints, take a proportion of the GR books 
 amazon_booklist <- booklist %>%
   left_join(overlap_titles, by = "Book_Id") %>%
   select(Book_Id, asin) %>%
   rename("book_id" = "Book_Id") %>%
-  distinct(asin, .keep_all = TRUE)
+  distinct(asin, .keep_all = TRUE) %>%
+  sample_frac(size = 0.5, replace = FALSE)
+
+
+# keep only necessary columns and create review_ID
+amazon_reviews <- df_amazon_reviews %>% 
+  mutate(Amazon_ReviewId = row_number()) %>%
+  select(!summary) %>%
+  select(!overall) %>%
+  rename("review_text" = "reviewText") %>%
+  mutate(review_date = as.POSIXct(unixReviewTime, origin = "1970-01-01", tz = "UTC") %>% 
+           format("%Y-%m-%d")) %>%
+  select(!unixReviewTime) 
 
 amazon_reviews <- left_join(amazon_booklist, amazon_reviews, by = "asin")
 amazon_reviews <- amazon_reviews %>%
   distinct(review_text, reviewerID, .keep_all = TRUE) %>%
   select(!reviewerID)
+
+
+
+
 
 # replace review_text with only white spaces with NA and get rid of all NA reviews
 amazon_reviews$review_text[amazon_reviews$review_text == ""] <- NA

@@ -17,8 +17,6 @@ amazon_reviews <- amazon_reviews %>%
   select(!asin) %>%
   rename("review_id" = "Amazon_ReviewId")
 
-# amazon_reviews <- head(amazon_reviews, 1000) # for quick changes to see if it works
-
 # Tokenize the reviews using the unnest_tokens() function
 am_reviews_tokens <- amazon_reviews %>%
   unnest_tokens(word, format = "text", review_text) 

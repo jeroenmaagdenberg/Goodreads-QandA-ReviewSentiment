@@ -46,7 +46,9 @@ book_likes_and_num_answers <- goodreads_books %>%
 # remove all observations with no value in Date_of_Question column and all duplicates
 subset_questions <- goodreads_books %>%
   filter(Date_of_Question != "") %>%
-  distinct(.keep_all = TRUE)
+  select(!Likes) %>%
+  select(!Number_of_Answers) %>%
+  distinct(.keep_all = TRUE) 
 
 # subset to rows that contain "day" or "month" in Date_of_Question
 subset_questions <- subset_questions[grep("day|month", subset_questions$Date_of_Question)]
@@ -59,9 +61,6 @@ subset_questions$Scraping_Date <- as.Date(subset_questions$Scraping_Date)
 
 # extract number of days from Date_of_Question and subtract from Scraping_Date for exact timestamp
 subset_questions$exact_question_timestamp <- subset_questions$Scraping_Date - as.numeric(gsub("\\D", "", subset_questions$Date_of_Question))
-
-# dupes <- duplicated(subset_questions$Book_Id)
-# dupe <- subset_questions[dupes, drop = FALSE]
 
 #####
 ### convert years to days
@@ -100,9 +99,6 @@ goodreads_questions <- bind_rows(subset_questions,web_archive)
 # add the likes and number of answers to the questions
 goodreads_questions <- goodreads_questions %>%
   left_join(book_likes_and_num_answers, by = "Book_Id") %>%
-  mutate(Likes = coalesce(Likes.y, Likes.x),
-         Number_of_Answers = coalesce(Number_of_Answers.y, Number_of_Answers.x)) %>%
-  select(-Likes.y, -Number_of_Answers.y, -Likes.x, -Number_of_Answers.x) %>%
   arrange(Book_Id)
 
 # clean environment

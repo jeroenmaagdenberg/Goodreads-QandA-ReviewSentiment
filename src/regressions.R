@@ -114,10 +114,13 @@ bgtest(AFINN_score ~ post + Likes + Number_of_Answers, order = 3, data = goodrea
 
 
 #### Diff in Diff ####
-# create merged dataframe for diff in diff
-df_merged_reviews <- rbind(goodreads_r_sentiment, amazon_r_sentiment, fill = TRUE)
+# subset goodreads_r_sentiment to matcy the books in amazon_r_sentiment
+goodreads_r_sent_subset <- filter(goodreads_r_sentiment, Book_Id %in% amazon_booklist$book_id) 
+# I assume this is necessary as this will mean that only the books that are present in BOTH dataframes are tested 
 
-merged_reviews <- df_merged_reviews  # df_merged_reviews -> merged_reviews when it works as it should.  
+
+# create merged dataframe for diff in diff
+df_merged_reviews <- rbind(goodreads_r_sent_subset, amazon_r_sentiment, fill = TRUE)
 
 # variable explanation
 # post = whether review was posted before or after question was posted
@@ -125,9 +128,14 @@ merged_reviews <- df_merged_reviews  # df_merged_reviews -> merged_reviews when 
 # post_treatment = when review is posted on goodreads AND after question, than 1. Else 0. 
 
 
-# combining video and both date & book_id
+
+merged_reviews <- df_merged_reviews %>%
+  mutate(source = if_else(source == "GR", 1,0)) %>%
+  rename("treated" = "source")
+
 sink("gen/analysis/output/model_mod.txt")
-did_model <- feols(AFINN_score ~ post + post:post_treatment + post:post_treatment:Likes + post:post_treatment:Number_of_Answers + post:post_treatment:Likes:Number_of_Answers
-                    | Book_Id + Year_Month, data = merged_reviews)
+did_model <- feols(AFINN_score ~ post + treated + post:treated + post:treated:Likes + post:treated:Number_of_Answers + post:treated:Likes:Number_of_Answers
+                   | Book_Id + Year_Month, data = merged_reviews)
 summary(did_model)
 sink()
+
