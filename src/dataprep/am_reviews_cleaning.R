@@ -8,6 +8,14 @@ setwd('~/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 # read goodreads reviews 
 df_amazon_reviews <- readRDS("dat/qa_subset_amazon_text_merged.RDS")
 
+# look at the years of reviews
+test <- df_amazon_reviews %>%
+  select(unixReviewTime) %>%
+  mutate(Year = as.POSIXct(unixReviewTime, origin = "1970-01-01", tz = "UTC")) %>%
+  mutate(Year = str_sub(Year, start = 1, end = 4)) %>%
+  select(!unixReviewTime)
+table(test)
+
 # read overlap file
 overlap_titles <- read.table("dat/overlap_titles_amazon_gr.txt", header = TRUE)
 

@@ -68,32 +68,17 @@ goodreads_r_sentiment <- goodreads_r_sentiment %>%
 write.csv(goodreads_r_sentiment, "gen/dataprep/goodreads_r_sentiment.csv", row.names = FALSE)
 
 
-
-
-
-
 ##### book #####
 # Calculate the AFINN sentiment scores per book 
 book_sentiment_afinn <- reviews_sentiment_afinn %>%
   group_by(Book_Id) %>% 
-  summarise(AFINN_score = sum(sentiment_afinn, na.rm = TRUE))   
+  summarise(AFINN_book_score = sum(sentiment_afinn, na.rm = TRUE),
+            AFINN_book_mean = mean(sentiment_afinn, na.rm = TRUE))
 #### should i do it per book with sum or with mean? 
 
-gr_booksentiment <- full_join(goodreads_full, reviews_sentiment_afinn, by = c("review_id", "Book_Id"))
-gr_booksentiment <- gr_booksentiment %>%
-  group_by(Book_Id) %>%
-  summarise(#AFINN_score = sum(sentiment_afinn, na.rm = TRUE),
-            AFINN_pretreat = sum(sentiment_afinn[treated == 0], na.rm = TRUE),
-            AFINN_posttreat = sum(sentiment_afinn[treated == 1], na.rm = TRUE))
-#### now the pre and post are together the same as the regular score. Something in me says that this shouldnt be the case.
-
-
-
-# add each book average to each book
-gr_booksentiment <- full_join(book_sentiment_afinn, gr_booksentiment, by = "Book_Id")
 
 ### create file for sentiment analyses per book
-goodreads_b_sentiment <- left_join(goodreads_questions, gr_booksentiment, by = "Book_Id")
+goodreads_b_sentiment <- left_join(goodreads_questions, book_sentiment_afinn, by = "Book_Id")
 goodreads_b_sentiment <- goodreads_b_sentiment %>%
   mutate(Likes = replace_na(Likes, 0)) %>%
   mutate(Number_of_Answers = replace_na(Number_of_Answers, 0)) %>%
@@ -101,11 +86,7 @@ goodreads_b_sentiment <- goodreads_b_sentiment %>%
   select(!Scraping_Date) %>%
   select(!Question_Timestamp) %>%
   arrange(Book_Id) %>%
-  mutate(source = "GR") %>%
-  mutate(post_treatment = case_when(
-    source == "GR" & post == 1 ~ 1,
-    TRUE ~ 0
-  ))
+  mutate(source = "GR")
 
 
 write.csv(goodreads_b_sentiment, "gen/dataprep/goodreads_b_sentiment.csv", row.names = FALSE)
