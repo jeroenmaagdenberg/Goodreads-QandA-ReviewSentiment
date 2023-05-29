@@ -10,9 +10,9 @@ R and R Studio [Installation Guide.](http://tilburgsciencehub.com/setup/r/)\
 For required R packages, source code files where lines starting with 'libary' indicate the required packages.
 
 ### Running the code
-Clone the repository to your device
-Set working directory to the structure of your directory by using the 'setwd()' function in R Studio
-Run the source code files for data preparation (located in the 'src/dataprep' folder) in the following order:
+Clone the repository to your device\
+Set working directory to the structure of your directory by using the 'setwd()' function in R Studio\
+Run the source code files for data preparation (located in the 'src/dataprep' folder) in the following order:\
 
 1) 'gr_questions_cleaning.R'
 2) 'gr_reviews_cleaning.R'
