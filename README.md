@@ -1,4 +1,4 @@
-# The Game of Books
+# A Game of Books
 ## Investigating the Role of Q&A Sections on Review Sentiment on Goodreads
 
 User-generated content is becoming increasingly important in the buying process of consumers. In this study, the role of a Q&A section on Goodreads on review sentiment of books is studied. Using fixed effects regression models and a difference-in-difference analysis, the effect of having a Q&A section present is estimented. 
