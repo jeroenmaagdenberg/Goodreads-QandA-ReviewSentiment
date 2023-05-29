@@ -7,8 +7,8 @@ User-generated content is becoming increasingly important in the buying process 
 ### Necessities
 
 R and R Studio [Installation Guide.](https://tilburgsciencehub.com/building-blocks/configure-your-computer/statistics-and-computation/r/)\
-For required R packages, source code files where lines starting with `library` indicate the required packages.
-Various datasets on Goodreads and Amazon data. Contact [Shrabastee Banerjee](https://github.com/shrabasteebanerjee) for access to the following files:
+For required R packages, source code files where lines starting with `library` indicate the required packages.\
+Various datasets with raw data. Contact [Shrabastee Banerjee](https://github.com/shrabasteebanerjee) for access to the following files:
 
 1) `2864_goodreads_com_book_full.csv`
 2) `2864_web_archive_org_one_year_level.csv`
