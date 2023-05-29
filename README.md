@@ -3,9 +3,8 @@
 
 User-generated content is becoming increasingly important in the buying process of consumers. In this study, the role of a Q&A section on Goodreads on review sentiment of books is studied. Using fixed effects regression models and a difference-in-difference analysis, the effect of having a Q&A section present is estimented. 
 
-![books](https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=754&h=502&fit=crop)\
+![](https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=500&h=250&fit=crop)
 Source: [The 50 great books on education](https://theconversation.com/the-50-great-books-on-education-24934) by Dennis Hayes, 2014
-
 
 ## Running instructions
 ### Necessities
