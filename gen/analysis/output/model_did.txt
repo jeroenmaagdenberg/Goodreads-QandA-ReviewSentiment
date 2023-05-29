@@ -1,15 +1,15 @@
 OLS estimation, Dep. Var.: AFINN_score
-Observations: 1,816,643 
-Fixed-effects: Book_Id: 6,860,  date: 7,621
+Observations: 1,816,642 
+Fixed-effects: Book_Id: 6,860,  Year_Month: 259
 Standard-errors: Clustered (Book_Id) 
-                                      Estimate Std. Error   t value   Pr(>|t|)    
-post                                 -0.412299   0.069574 -5.926076 3.2529e-09 ***
-treated                              -0.522227   0.060983 -8.563482  < 2.2e-16 ***
-post:treated                         -0.060032   0.093547 -0.641729 5.2107e-01    
-post:treated:Likes                    0.005655   0.005866  0.964079 3.3504e-01    
-post:treated:Number_of_Answers        0.001653   0.004140  0.399231 6.8974e-01    
-post:treated:Likes:Number_of_Answers -0.000027   0.000081 -0.335487 7.3727e-01    
+                                      Estimate Std. Error    t value   Pr(>|t|)    
+post                                 -0.416743   0.070204  -5.936175 3.0598e-09 ***
+treated                              -0.542743   0.045391 -11.957091  < 2.2e-16 ***
+post:treated                         -0.040779   0.094912  -0.429656 6.6746e-01    
+post:treated:Likes                    0.006425   0.006068   1.058938 2.8967e-01    
+post:treated:Number_of_Answers        0.001062   0.004238   0.250499 8.0221e-01    
+post:treated:Likes:Number_of_Answers -0.000024   0.000084  -0.289901 7.7190e-01    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 9.18499     Adj. R2: 0.087756
-                Within R2: 5.159e-4
+RMSE: 7.4643     Adj. R2: 0.129163
+               Within R2: 8.379e-4

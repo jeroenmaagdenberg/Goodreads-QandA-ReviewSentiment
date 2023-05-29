@@ -1,15 +1,11 @@
-library(wordcloud)
 library(knitr)
-library(clipr)
 library(scales)
 
 #### Goodreads ####
-# summary statistics - Goodreads
+##### Summary Statistics - Goodreads #####
 goodreads_books <- fread("dat/2864_goodreads_com_book_full.csv")
 web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")
-test <- readRDS("dat/qa_subset_goodreads_text_merged.RDS")
 
-# summary statistics
 # compute unique book ids
 unique_book_ids <- goodreads_books[!duplicated(goodreads_books$Book_Id),] %>%
   select(Book_Id) # 100034 books
@@ -19,6 +15,22 @@ gr_unique_book_ids <- goodreads_full[!duplicated(goodreads_full$Book_Id),] %>%
   select(Book_Id) # 14123 books with questions and reviews
 
 tidy_afinn %>% count(word, sort = T)
+
+# trying to find out how it is possible that there is some variation with Number of Answers
+book_counts <- goodreads_r_sentiment %>%
+  group_by(Book_Id) %>%
+  summarize(num_answers = n_distinct(Number_of_Answers))
+
+# Filter the books that have more than one unique value for Number_of_Answers
+books_with_multiple_answers <- book_counts %>%
+  filter(num_answers > 1)
+
+# View the books with multiple Number_of_Answers
+table(books_with_multiple_answers)   # gives me an empty table, so i conclude that there is no variation per book
+
+
+
+
 
 
 # summary statistics - AFINN
@@ -67,7 +79,7 @@ sample_table <- bind_rows(positive_sample, negative_sample, neutral_sample)
 rm(negative_sample, positive_sample, neutral_sample)
 
 
-### graphs
+##### Graphs - Goodreads #####
 # line graph for cumulitive number of reviews over time
 gr_summary_data <- goodreads_r_sentiment %>%
   group_by(Year_Month) %>%
@@ -105,6 +117,7 @@ ggplot(goodreads_avg_score, aes(x = Year_Month, y = avg_score)) +
 goodreads_r_sentiment <- goodreads_r_sentiment %>%
   filter(AFINN_score <= 1000)
 
+##### Summary Statistics - Corrected GR #####
 # summary statistics - AFINN
 gr_AFINN_mean <- round(mean(goodreads_r_sentiment$AFINN_score, na.rm = TRUE), 4)
 gr_AFINN_sd <- round(sd(goodreads_r_sentiment$AFINN_score, na.rm = TRUE), 4)
@@ -140,16 +153,6 @@ AFINN_var_post <- round(var(subset(goodreads_r_sentiment, post == 1)$AFINN_score
 
 
 
-# plot- AFINN
-# word_counts <- reviews_tokens %>%
-#   count(word, sort = TRUE) %>%
-#   filter(n > 10)
-# 
-# ggplot(word_counts, aes(x = n, y = reorder(word, n))) +
-#   geom_point() +
-#   scale_x_log10() +
-#   xlab("Word Count (log scale)") +
-#   ylab("Words")
 
 
 
@@ -157,16 +160,13 @@ AFINN_var_post <- round(var(subset(goodreads_r_sentiment, post == 1)$AFINN_score
 
 
 
-
-
-
-##### amazon #####
+#### Amazon ####
 amazon_r_sentiment <- fread("gen/dataprep/amazon_r_sentiment.csv")
 amazon_b_sentiment <- fread("gen/dataprep/amazon_b_sentiment.csv")
 
 
 
-
+##### Summary Statistics - Amazon #####
 # summary statistics - AFINN
 am_AFINN_mean <- round(mean(amazon_r_sentiment$AFINN_score, na.rm = TRUE), 4)
 am_AFINN_sd <- round(sd(amazon_r_sentiment$AFINN_score, na.rm = TRUE), 4)
@@ -202,7 +202,7 @@ AFINN_sd_post <- round(sd(subset(amazon_r_sentiment, post == 1)$AFINN_score), 4)
 #  filter(word == "terribly")
 
 
-### graphs
+##### Graphs - Amazon #####
 # line graph for cumulative number of reviews over time including Goodreads
 am_summary_data <- amazon_r_sentiment %>%
   group_by(Year_Month) %>%
