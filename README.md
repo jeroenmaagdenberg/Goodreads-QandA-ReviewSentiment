@@ -1,10 +1,18 @@
-# A Game of Books
+# A Song of Reviews and Q&As
 ## Investigating the Role of Q&A Sections on Review Sentiment on Goodreads
 
-User-generated content is becoming increasingly important in the buying process of consumers. In this study, the role of a Q&A section on Goodreads on review sentiment of books is studied. Using fixed effects regression models and a difference-in-difference analysis, the effect of having a Q&A section present is estimented. 
+User-generated content is becoming increasingly important in the buying process of consumers. In this study, the role of a Q&A section on Goodreads on review sentiment of books is studied. Based on literature, the following three hypotheses were formulated:
+
+**H1**  *The presence of a Q&A section has a positive effect on the average sentiment of reviews.*\
+**H2**	*The effect of the presence of a Q&A section on the average sentiment of reviews increases (decreases) as the number of answers on the featured question goes up (down).*\
+**H3**	*The effect of the presence of a Q&A section on the average sentiment of reviews increases (decreases) as the number of likes on the featured question goes up (down).*
 
 ![](https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=754&h=502&fit=crop)\
 Source: [The 50 great books on education](https://theconversation.com/the-50-great-books-on-education-24934) by Dennis Hayes, 2014
+
+The study uses data from Goodreads and includes data on questions, reviews, and related information. Using fixed effects regression models and a difference-in-difference analysis, the effect of having a Q&A section present is estimated. In the difference-in-difference analysis, reviews on Goodreads were considered as the treatment group while Amazon reviews were part of the control group.
+
+The fixed effect regression models showed a negative relationship between having a Q&A and the average sentiment of reviews and difference-in-difference analysis suggested that an increase in question likes, lead to more positive reviews on Goodreads.
 
 ## Running instructions
 ### Necessities
