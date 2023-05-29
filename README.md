@@ -6,7 +6,7 @@ User-generated content is becoming increasingly important in the buying process 
 ## Running instructions
 ### Necessities
 
-R and R Studio [Installation Guide.](http://tilburgsciencehub.com/setup/r/)\
+R and R Studio [Installation Guide.](https://tilburgsciencehub.com/building-blocks/configure-your-computer/statistics-and-computation/r/)\
 For required R packages, source code files where lines starting with 'libary' indicate the required packages.
 
 ### Running the code
