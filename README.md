@@ -32,10 +32,10 @@ Run the source code files for data preparation (located in the `src/dataprep` fo
 5) `gr_sentiment.R`
 7) `am_sentiment.R`
 
-Then, run the source code files for the analyses in the following order:
+Then, run the source code files for the analyses (located in the `src/analysis` folder) in the following order:
 
 1) `summary_statistics.R`
 2) `regression.R`
 
 ### Shortcut
-If the cleaning and sentiment measurement processes are not of interest, unzip `sentiment.zip` located in the `gen/dataprep` folder to gain access to the files used for the analyses in `regression.R`. 
+If the cleaning and sentiment measurement processes are not of interest, unzip `sentiment.zip` located in the `gen/dataprep` folder to gain access to the sentiment files used for the analyses in `regression.R`. 
