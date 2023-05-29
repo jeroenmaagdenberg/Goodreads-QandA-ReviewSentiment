@@ -40,7 +40,7 @@ Run the source code files for data preparation (located in the `src/dataprep` fo
 5) `gr_sentiment.R`
 7) `am_sentiment.R`
 
-Then, run the source code files for the analyses (located in the `src/analysis` folder) in the following order:
+Then, run the source code files for the statistics and analyses (located in the `src/analysis` folder) in the following order:
 
 1) `summary_statistics.R`
 2) `regression.R`
