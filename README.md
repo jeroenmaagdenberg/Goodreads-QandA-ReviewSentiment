@@ -8,7 +8,7 @@ User-generated content is becoming increasingly important in the buying process 
 
 R and R Studio [Installation Guide.](https://tilburgsciencehub.com/building-blocks/configure-your-computer/statistics-and-computation/r/)\
 For required R packages, source code files where lines starting with `library` indicate the required packages.\
-Various datasets with raw data. Contact [Shrabastee Banerjee](https://github.com/shrabasteebanerjee) for access to the following files:
+Various datasets with raw data. Contact [Shrabastee Banerjee](https://github.com/shrabasteebanerjee) for access to the following raw data files:
 
 1) `2864_goodreads_com_book_full.csv`
 2) `2864_web_archive_org_one_year_level.csv`
@@ -33,3 +33,6 @@ Then, run the source code files for the analyses in the following order:
 
 1) `summary_statistics.R`
 2) `regression.R`
+
+### Shortcut
+If the cleaning and sentiment measurement processes are not of interest, unzip `sentiment.zip` in the `gen/dataprep` folder to gain access to the files that are used for the regression analyses in `regression.R`. 
