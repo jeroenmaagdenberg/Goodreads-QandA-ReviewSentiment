@@ -10,6 +10,7 @@ library(readr)
 
 setwd('~/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 
+#### amazon reviews ####
 # read amazon reviews 
 amazon_reviews <- readRDS("gen/dataprep/amazon_reviews.RDS")
 
@@ -72,7 +73,7 @@ write.csv(amazon_r_sentiment, "gen/dataprep/amazon_r_sentiment.csv",  row.names 
 
 
 
-##### book #####
+#### amazon book ####
 # Calculate the AFINN sentiment scores per book 
 am_book_sentiment_afinn <- am_reviews_sentiment_afinn %>%
   rename("Book_Id" = "book_id") %>%

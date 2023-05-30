@@ -18,18 +18,13 @@ goodreads_full <- goodreads_full %>%
 goodreads_full$date <- as.Date(goodreads_full$date)
 goodreads_full$exact_question_timestamp <- as.Date(goodreads_full$exact_question_timestamp)
 
-# goodreads_full$pre_treatment <- ifelse(goodreads_full$date < goodreads_full$exact_question_timestamp, 1, 0)
-# goodreads_full$pre_treatment[is.na(goodreads_full$pre_treatment)] <- 0
-
-# goodreads_full$post_treatment <- ifelse(goodreads_full$date > goodreads_full$exact_question_timestamp, 1, 0)
-# goodreads_full$post_treatment[is.na(goodreads_full$post_treatment)] <- 0
-
 goodreads_full$post <- ifelse(goodreads_full$date > goodreads_full$exact_question_timestamp, 1, 0)
 goodreads_full$post[is.na(goodreads_full$post)] <- 0
 
-# prepare
+# remove rows with NAs
 goodreads_full <- na.omit(goodreads_full, cols ="review_text")
 
+# prepare full and create Year_Month variable
 goodreads_full <- goodreads_full %>%
   select(!Date_of_Question) %>%
   select(!Scraping_Date) %>%
@@ -38,13 +33,6 @@ goodreads_full <- goodreads_full %>%
   select(!date_added) %>%
   mutate(Year_Month = paste0(Year_Month, "-01")) %>%
   mutate(Year_Month = as.Date(Year_Month))
-
-
-# nas <- is.na(goodreads_full$post_treatment)
-# na <- goodreads_full[nas, drop = FALSE]
-# sum(duplicated(goodreads_full$review_id))
-# dupes <- duplicated(goodreads_full$review_id)
-# dupe <- goodreads_full[dupes, drop = FALSE]
 
 
 
@@ -65,9 +53,10 @@ amazon_full$exact_question_timestamp <- as.Date(amazon_full$exact_question_times
 amazon_full$post <- ifelse(amazon_full$review_date > amazon_full$exact_question_timestamp, 1, 0)
 amazon_full$post[is.na(amazon_full$post)] <- 0
 
-# prepare
+# remove rows with NAs
 amazon_full <- na.omit(amazon_full, cols ="review_text")
 
+# prepare full and create Year_Month variable
 amazon_full <- amazon_full %>%
   select(!Date_of_Question) %>%
   select(!Scraping_Date) %>%

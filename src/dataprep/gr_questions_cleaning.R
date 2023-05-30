@@ -7,7 +7,7 @@ library(stringr)
 
 setwd('~/Documents/GitHub/Goodreads-QandA-ReviewSentiment')
 
-#####
+#### subset ####
 ### convert months to days
 # read the dataset
 goodreads_books <- fread("dat/2864_goodreads_com_book_full.csv")
@@ -62,7 +62,7 @@ subset_questions$Scraping_Date <- as.Date(subset_questions$Scraping_Date)
 # extract number of days from Date_of_Question and subtract from Scraping_Date for exact timestamp
 subset_questions$exact_question_timestamp <- subset_questions$Scraping_Date - as.numeric(gsub("\\D", "", subset_questions$Date_of_Question))
 
-#####
+#### web_archive ####
 ### convert years to days
 # open file
 web_archive <- fread("dat/2864_web_archive_org_one_year_level.csv")

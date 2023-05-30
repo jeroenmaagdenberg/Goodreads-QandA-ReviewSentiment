@@ -55,8 +55,6 @@ amazon_reviews <- amazon_reviews %>%
 
 
 
-
-
 # replace review_text with only white spaces with NA and get rid of all NA reviews
 amazon_reviews$review_text[amazon_reviews$review_text == ""] <- NA
 amazon_reviews <- na.omit(amazon_reviews, cols ="review_text")
@@ -65,30 +63,6 @@ amazon_reviews <- amazon_reviews %>%
   mutate(review_text = str_remove_all(review_text, "(http|https)://\\S+|Amazon\\.com|amazon\\.com|&\\S*;|<[^>]*>|[^[:alpha:]\\s]+|[[:digit:]]+")) %>%
   mutate(review_text = str_squish(review_text))
 
-# 
-# # clean review_text
-# amazon_reviews <- amazon_reviews %>%
-#   mutate(
-#     # remove links
-#     review_text = str_remove_all(amazon_reviews$review_text, "https\\S*"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "http\\S*"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "amazon.com*"),
-#     # remove html stuff
-#     review_text = str_remove_all(amazon_reviews$review_text, "amp"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "&S*"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "&#x27;|&quot;|&#x2F;"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "<a(.*?)>"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "<a[^>]*>[^<]*</a>"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "&gt;|&lt;|&amp;"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "&#[:digit:]+;"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "<[^>]*>"),
-#     # remove numbers and special characters
-#     review_text = str_remove_all(amazon_reviews$review_text, "[:digit:]"),
-#     review_text = str_remove_all(amazon_reviews$review_text, "[^[:alpha:]\\s]+"),
-#     # remove excess whitespace
-#     review_text = str_squish(review_text),
-#     review_text = str_trim(review_text)
-#   )
 
 # replace review_text with only white spaces with NA and get rid of all NA reviews
 amazon_reviews$review_text[amazon_reviews$review_text == ""] <- NA
