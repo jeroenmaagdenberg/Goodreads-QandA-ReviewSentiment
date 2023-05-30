@@ -3,7 +3,6 @@ library(fixest)
 library(data.table)
 library(nortest)
 library(AER)
-library(stargazer)
 library(tseries)
 
 goodreads_r_sentiment <- fread("gen/dataprep/goodreads_r_sentiment.csv")
@@ -88,23 +87,7 @@ model3 <- feols(AFINN_score ~ post + Likes +
 summary(model3)
 
 
-# model5b <- feols(AFINN_score ~ post + Likes + Number_of_Answers + 
-#                    post:Likes + post:Number_of_Answers
-#                  | Book_Id + Year_Month,
-#                 cluster = "Book_Id",
-#                 data = goodreads_r_sentiment)
-# summary(model5b)
-
-# model6b <- feols(AFINN_score ~ post + Likes + Number_of_Answers + 
-#                    post:Likes + post:Number_of_Answers + 
-#                    post:Likes:Number_of_Answers
-#                  | Book_Id + Year_Month,
-#                  cluster = "Book_Id",
-#                  data = goodreads_r_sentiment)
-# summary(model6b)
-
-
-# assumption checks on model6
+##### assumption checks #####
 # Homoscedasticity
 bptest(AFINN_score ~ post + Likes + Number_of_Answers, 
        data = goodreads_r_sentiment) #violated
@@ -134,12 +117,14 @@ model_corr # met
 
 
 
-#### Diff in Diff ####
+#### Diff-in-Diff ####
+##### preparing for diff-in-diff #####
+# cleaning out potential duplicates
 amazon_booklist <- amazon_r_sentiment %>%
   select(Book_Id) %>%
   distinct() 
 
-
+# make sure that everything has the correct class
 goodreads_r_sentiment <- goodreads_r_sentiment %>%
   mutate(exact_question_timestamp = as.Date(exact_question_timestamp)) %>%
   mutate(date = as.Date(date)) %>%
@@ -149,21 +134,15 @@ amazon_r_sentiment <- amazon_r_sentiment %>%
   mutate(date = as.Date(date)) %>%
   mutate(Year_Month = as.Date(Year_Month))
 
-
-
 # subset goodreads_r_sentiment to match the books in amazon_r_sentiment
 goodreads_r_sent_subset <- filter(goodreads_r_sentiment, Book_Id %in% amazon_booklist$Book_Id) 
-# I assume this is necessary as this will mean that only the books that are present in BOTH dataframes are tested 
 
 # create merged dataframe for diff in diff
-
 df_merged_reviews <- rbind(goodreads_r_sent_subset, amazon_r_sentiment, fill = TRUE)
-
-# variable explanation
+# variable explanation:
 # post = whether review was posted before or after question was posted
 # source = Amazon or Goodreads (either AM or GR)
 # post_treatment = when review is posted on goodreads AND after question, than 1. Else 0. 
-
 
 # change source variable to a dummy where treated = 1 for Goodreads, and 0 for Amazon. 
 merged_reviews <- df_merged_reviews %>%
@@ -171,18 +150,19 @@ merged_reviews <- df_merged_reviews %>%
   rename("treated" = "source")
 
 
-# DiD analysis
-sink("gen/analysis/output/model_did.txt")
-did_model <- feols(AFINN_score ~ post + treated + post:treated + post:treated:Likes + post:treated:Number_of_Answers + post:treated:Likes:Number_of_Answers
-                   | Book_Id + Year_Month, data = merged_reviews)
-summary(did_model)
-sink()
-
-
-
-# without three-way interaction
-sink("gen/analysis/output/model_did2.txt")
+##### diff-in-diff analysis #####
+# without four-way interaction
+sink("gen/analysis/output/model2_did.txt")
 did_model2 <- feols(AFINN_score ~ post + treated + post:treated + post:treated:Likes + post:treated:Number_of_Answers
                    | Book_Id + Year_Month, data = merged_reviews)
 summary(did_model2)
 sink() # makes another variable significant
+
+# with four-way interaction
+sink("gen/analysis/output/model3_did.txt")
+did_model3 <- feols(AFINN_score ~ post + treated + post:treated + post:treated:Likes + post:treated:Number_of_Answers + post:treated:Likes:Number_of_Answers
+                   | Book_Id + Year_Month, data = merged_reviews)
+summary(did_model3)
+sink()
+
+
