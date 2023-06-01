@@ -91,3 +91,9 @@ goodreads_b_sentiment <- goodreads_b_sentiment %>%
 
 write.csv(goodreads_b_sentiment, "gen/dataprep/goodreads_b_sentiment.csv", row.names = FALSE)
 
+
+
+# overview of top 5 words
+gr_top5_words <- tidy_afinn %>%
+  count(word, sort = TRUE) %>%
+  head(5)

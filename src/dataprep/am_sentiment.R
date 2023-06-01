@@ -108,4 +108,7 @@ amazon_b_sentiment <- filter(amazon_b_sentiment, Book_Id %in% amazon_booklist$Bo
 
 write.csv(amazon_b_sentiment, "gen/dataprep/amazon_b_sentiment.csv", row.names = FALSE)
 
-
+# overview of top 5 words
+am_top5_words <- am_tidy_afinn %>%
+  count(word, sort = TRUE) %>%
+  head(5)
