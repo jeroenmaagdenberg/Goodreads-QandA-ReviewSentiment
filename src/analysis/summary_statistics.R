@@ -80,24 +80,27 @@ rm(negative_sample, positive_sample, neutral_sample)
 
 
 ##### Graphs - Goodreads #####
-# line graph for cumulitive number of reviews over time
+# line graph for cumulative number of reviews over time
 gr_summary_data <- goodreads_r_sentiment %>%
   group_by(Year_Month) %>%
   summarize(Review_Count = sum(n()))
 gr_summary_data$Cumulative_Count <- cumsum(gr_summary_data$Review_Count)
 ggplot(gr_summary_data, aes(x = Year_Month, y = Cumulative_Count)) +
-  geom_line() +
+  geom_line(color = "#00BFC4") +
   labs(x = "Year", y = "Cumulative Number of Reviews") +
   ggtitle("Figure 2: Cumulative Number of Reviews Over Time on Goodreads") +
   scale_y_continuous(labels = comma_format()) +
+  theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
 
 # scatter plot of AFINN_score
 ggplot(goodreads_r_sentiment, aes(x = seq_along(AFINN_score), y = AFINN_score)) +
-  geom_point(color = "steelblue") +
+  geom_point(color = "#00BFC4") +
   labs(x = "Index", y = "AFINN Score") +
   ggtitle("Figure 3: Scatter Plot of AFINN Scores on Goodreads") +
+  scale_x_continuous(labels = comma_format()) +
+  theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
 
@@ -106,9 +109,10 @@ goodreads_avg_score <- goodreads_r_sentiment %>%
   group_by(Year_Month) %>%
   summarise(avg_score = mean(AFINN_score, na.rm = TRUE))
 ggplot(goodreads_avg_score, aes(x = Year_Month, y = avg_score)) +
-  geom_line() +
+  geom_line(color = "#00BFC4") +
   labs(x = "Year", y = "Average AFINN Score") +
   ggtitle("Figure 4: Average AFINN Score on Goodreads") +
+  theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
 
@@ -203,7 +207,18 @@ AFINN_sd_post <- round(sd(subset(amazon_r_sentiment, post == 1)$AFINN_score), 4)
 
 
 ##### Graphs - Amazon #####
-# line graph for cumulative number of reviews over time including Goodreads
+# update GR data points to exclude outlier
+gr_summary_data <- goodreads_r_sentiment %>%
+  filter(AFINN_score <= 1000) %>%
+  group_by(Year_Month) %>%
+  summarize(Review_Count = sum(n()))
+gr_summary_data$Cumulative_Count <- cumsum(gr_summary_data$Review_Count)
+goodreads_avg_score <- goodreads_r_sentiment %>%
+  filter(AFINN_score <= 1000) %>%
+  group_by(Year_Month) %>%
+  summarise(avg_score = mean(AFINN_score, na.rm = TRUE))
+
+# Figure 5: line graph for cumulative number of reviews over time including Goodreads
 am_summary_data <- amazon_r_sentiment %>%
   group_by(Year_Month) %>%
   summarize(Review_Count = sum(n()))
@@ -214,18 +229,20 @@ ggplot() +
   labs(x = "Year", y = "Cumulative Number of Reviews", color = "Source") +
   ggtitle("Figure 5: Cumulative Number of Reviews Over Time on Goodreads vs Amazon") +
   scale_y_continuous(labels = comma_format()) +
-  theme(plot.title = element_text(hjust = 0.5))
-
-
-# scatter plot of AFINN_score
-ggplot(amazon_r_sentiment, aes(x = seq_along(AFINN_score), y = AFINN_score)) +
-  geom_point(color = "red1") +
-  labs(x = "Index", y = "AFINN Score") +
-  ggtitle("Figure 6: Scatter Plot of AFINN Scores on Amazon") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
-# Create a line plot to compare the average AFINN score
+
+# Figure 6: scatter plot of AFINN_score
+ggplot(amazon_r_sentiment, aes(x = seq_along(AFINN_score), y = AFINN_score)) +
+  geom_point(color = "#F8766D") +
+  labs(x = "Index", y = "AFINN Score") +
+  ggtitle("Figure 6: Scatter Plot of AFINN Scores on Amazon") +
+  scale_x_continuous(labels = comma_format()) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Figure 7: compare the average AFINN score
 amazon_avg_score <- amazon_r_sentiment %>%
   group_by(Year_Month) %>%
   summarise(avg_score = mean(AFINN_score, na.rm = TRUE))
@@ -234,6 +251,7 @@ ggplot() +
   geom_line(data = amazon_avg_score, aes(x = Year_Month, y = avg_score, color = "Amazon")) +
   labs(x = "Year", y = "Average AFINN Score", color = "Source") +
   ggtitle("Figure 7: Comparison of Average AFINN Score on Goodreads vs Amazon") +
+  theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
 
